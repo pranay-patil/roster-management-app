@@ -63,7 +63,7 @@ export const ProviderCalendar = () => {
 	const originalRoster = useSelector((state: RootState) => state.roster.originalRoster);
 	const status = useSelector((state: RootState) => state.roster.status);
 	const [view, setView] = useState<string>("slot");
-
+	const [isHidden, setHidden] = useState<boolean>(false);
 	const [selectedDate, setSelectedDate] = useState("");
 
 	const handleDateChange = (date: string) => {
@@ -77,11 +77,15 @@ export const ProviderCalendar = () => {
 		setView(value);
 	};
 
+	const handleSideBarToggle = () => {
+		setHidden(!isHidden);
+	};
+
 	return (
 		<>
-			<Header view={view} toggleView={toggleView} />
+			<Header view={view} isHidden={isHidden} toggleView={toggleView} handleSideBarToggle={handleSideBarToggle} />
 			<Container>
-				<SidebarFilters roster={originalRoster} />
+				<SidebarFilters roster={originalRoster} isHidden={isHidden} />
 				{view === "slot" && (
 					<CalendarSection>
 						<CalendarHeader onDayChange={handleDateChange} />

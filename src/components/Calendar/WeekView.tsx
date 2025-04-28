@@ -11,6 +11,10 @@ interface WeekViewProps {
 	onSlotClick: (date: Date) => void;
 }
 
+const TIME_SLOT_HEIGHT = 60; // 60px = 1 hour block
+const START_HOUR = 8;
+const END_HOUR = 20;
+
 export const WeekView: React.FC<WeekViewProps> = ({
 	currentDate,
 	events,
@@ -25,7 +29,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 	const days = [];
 	const timeSlots = [];
 
-	for (let hour = 8; hour <= 20; hour++) {
+	for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
 		timeSlots.push(
 			<TimeLabel key={`time-${hour}`}>
 				{(() => {
@@ -67,12 +71,14 @@ export const WeekView: React.FC<WeekViewProps> = ({
 	const positionedEvents = eventsToRender.map((event) => {
 		const start = new Date(event.start);
 		const end = new Date(event.end);
+
 		const dayOffset = (start.getDay() - startOfWeek.getDay() + 7) % 7;
 		const startHour = start.getHours() + start.getMinutes() / 60;
 		const durationHours = (end.getTime() - start.getTime()) / (60 * 60 * 1000);
 
-		const top = (startHour - 8) * 60 + 40;
-		const height = durationHours * 60;
+		// No extra +40 now!
+		const top = (startHour - 8) * 60;
+		const height = durationHours * TIME_SLOT_HEIGHT;
 		const left = `calc(60px + ${dayOffset * (100 / 7)}%)`;
 		const width = `${100 / 7}%`;
 

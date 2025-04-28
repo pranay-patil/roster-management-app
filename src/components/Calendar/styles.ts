@@ -73,9 +73,12 @@ export const MonthViewContainer = styled.div`
 
 export const WeekViewContainer = styled.div`
 	display: grid;
-	grid-template-columns: 60px repeat(7, 1fr);
-	grid-template-rows: 1fr;
-	height: 100%;
+	grid-template-columns: 80px repeat(7, 1fr); /* Notice: updated first column to 80px (matches your TimeLabel width) */
+	grid-auto-rows: 60px; /* Each row is 60px tall (matches your TimeSlot and TimeLabel) */
+	position: relative; /* <-- Important: relative positioning for absolute children */
+	height: calc(60px * 13 + 50px); /* 13 hours (8 AM to 8 PM) + extra for header */
+	background: white;
+	overflow-y: auto;
 `;
 
 export const DayViewContainer = styled.div`

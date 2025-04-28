@@ -5,7 +5,7 @@ import { MenuIcon } from "@/icons/Menu";
 import { css } from "@emotion/react";
 import styled from "@emotion/styled";
 import React from "react";
-
+import { DoubleRightArrow } from "@/icons/DoubleRightArrow";
 const headerStyle = css`
 	display: flex;
 	justify-content: space-between;
@@ -17,6 +17,7 @@ const headerStyle = css`
 const leftButtons = css`
 	display: flex;
 	gap: 12px;
+	cursor: pointer;
 `;
 
 const rightButtons = css`
@@ -50,13 +51,15 @@ const MenuIconButton = styled.button<{ isHeighLight: boolean; side: string }>`
 interface HeaderProps {
 	view: string;
 	toggleView: (view: string) => void;
+	isHidden: boolean;
+	handleSideBarToggle: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ view, toggleView }) => {
+const Header: React.FC<HeaderProps> = ({ view, toggleView, isHidden, handleSideBarToggle }) => {
 	return (
 		<header css={headerStyle}>
-			<div css={leftButtons}>
-				<DoubleLeftArrow />
+			<div css={leftButtons} onClick={handleSideBarToggle}>
+				{!isHidden ? <DoubleLeftArrow /> : <DoubleRightArrow />}
 				<ProviderCalendar>Provider Calendar</ProviderCalendar>
 			</div>
 			<div css={rightButtons}>
