@@ -1,11 +1,13 @@
 import styled from "@emotion/styled";
 import { TimeSlot } from "./TimeSlot";
 import { FC, useRef } from "react";
-import { HomeIcon } from "../icons/Home"; // Assuming you have a HomeIcon component
+import { HomeIcon } from "../../icons/Home"; // Assuming you have a HomeIcon component
 import { VideoIcon } from "@/icons/VideoIcon";
 import { RightArrow, RightArrowFilled } from "@/icons/RightArrow";
 import { LeftArrow } from "@/icons/LeftArrow";
 import { Availability } from "@/redux/roster/types";
+import { filterProviderBaseOnName } from "@/redux/roster/rosterSlice";
+import { useDispatch } from "react-redux";
 const Card = styled.div`
 	margin-bottom: 32px;
 	display: flex;
@@ -152,6 +154,10 @@ interface ProviderCardProps {
 export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilities, toggleView = () => {} }) => {
 	const scrollRef = useRef<HTMLDivElement>(null);
 
+	const dispatch = useDispatch();
+	const handleProviderFilterChange = (value: string[]) => {
+		dispatch(filterProviderBaseOnName(value));
+	};
 	const generateTimeSlots = () => {
 		const slots = [];
 		let hour = 8;
@@ -205,6 +211,7 @@ export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilitie
 					<CalendarViewText
 						onClick={() => {
 							toggleView("calendar");
+							handleProviderFilterChange([name]);
 						}}
 					>
 						View Calendar

@@ -1,6 +1,6 @@
 import React from "react";
 import { DayHeader, DayHeaderDate, EventItem, TimeLabel, TimeSlot, DayViewContainer } from "./styles";
-import { Event } from "./types";
+import { Event } from "@/types/calendar";
 import { isSameDay } from "./utils";
 
 interface DayViewProps {

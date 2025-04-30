@@ -10,6 +10,7 @@ const Header = styled.div`
 	justify-content: space-between;
 	margin-bottom: 16px;
 	width: 100%;
+	margin-top: 16px;
 `;
 
 const NavButton = styled.button`

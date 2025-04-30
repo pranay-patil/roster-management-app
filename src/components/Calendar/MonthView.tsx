@@ -1,6 +1,6 @@
 import React from "react";
 import { DayCell, DayHeader, DayHeaderDate, EventItem, MonthViewContainer } from "./styles";
-import { Event } from "./types";
+import { Event } from "@/types/calendar";
 import { isSameDay, getDaysInMonth, getFirstDayOfMonth } from "./utils";
 
 interface MonthViewProps {

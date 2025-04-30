@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { useState, useEffect } from "react";
-import { Event } from "./types";
+import { Event } from "@/types/calendar";
 
 export const useCalendarEvents = () => {
 	const [events, setEvents] = useState<Event[]>([]);

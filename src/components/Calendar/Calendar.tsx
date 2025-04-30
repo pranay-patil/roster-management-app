@@ -1,7 +1,7 @@
 /* eslint-disable */
-import React, { useState, useRef } from "react";
-import { useCalendarEvents } from "./hooks";
-import { CalendarView, Event } from "./types";
+import React, { useState, useRef, useEffect } from "react";
+import { useCalendarEvents } from "@/hooks/useCalensarEvent";
+import { CalendarView, Event } from "@/types/calendar";
 import {
 	CalendarContainer,
 	CalendarHeader,
@@ -32,9 +32,37 @@ import { LeftArrow } from "@/icons/LeftArrow";
 import { RightArrowFilled } from "@/icons/RightArrow";
 import { SelectField } from "../MultiPurpose/SelectField";
 import { getWeekRangeString } from "./utils";
+import styled from "@emotion/styled";
+import { convertSlotsToEvents } from "@/utils/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { theme } from "@/styles/theme";
 
 const eventColors = ["#4285f4", "#ea4335", "#fbbc04", "#34a853", "#673ab7", "#ff6d00"];
 
+const SessionEvent = styled.div`
+	width: 20px;
+	height: 8px;
+	border-radius: 8px;
+	background: #757575;
+	border-bottom: 1px solid #e0e0e0;
+`;
+
+const CalendarEvent = styled.div`
+	width: 20px;
+	height: 8px;
+	border-radius: 8px;
+	background: #e0e0e0;
+	border-bottom: 1px solid #e0e0e0;
+`;
+
+const Label = styled.label`
+	font-size: 10px;
+	font-weight: 500;
+	letter-spacing: 0%;
+	text-align: center;
+	margin-top: -4px;
+`;
 export const Calendar: React.FC = () => {
 	const [currentDate, setCurrentDate] = useState<Date>(new Date());
 	const [view, setView] = useState<CalendarView>("week");
@@ -49,7 +77,13 @@ export const Calendar: React.FC = () => {
 		description: "",
 	});
 	const [draggedEvent, setDraggedEvent] = useState<Event | null>(null);
-	const calendarRef = useRef<HTMLDivElement>(null);
+
+	const roster = useSelector((state: RootState) => state.roster.roster);
+
+	useEffect(() => {
+		const bookedEvent = convertSlotsToEvents(currentDate as any, roster[0].availabilities[0], theme) as any;
+		setEvents(bookedEvent);
+	}, [currentDate]);
 
 	const goToPrevious = () => {
 		const newDate = new Date(currentDate);
@@ -163,25 +197,27 @@ export const Calendar: React.FC = () => {
 					<CalendarTitle>{getWeekRangeString(currentDate)}</CalendarTitle>
 				</div>
 				<CalendarControls>
-					<div>
-						<div></div>
-						<label>Session Event</label>
+					<div style={{ display: "flex", gap: "8px" }}>
+						<SessionEvent></SessionEvent>
+						<Label>Session Event</Label>
+					</div>
+					<div style={{ display: "flex", gap: "8px" }}>
+						<CalendarEvent></CalendarEvent>
+						<Label>Calendar Event</Label>
 					</div>
 					<div>
-						<div></div>
-						<label>Calendar Event</label>
+						<SelectField
+							optionList={[
+								{ id: "month", name: "Month", disabled: true },
+								{ id: "week", name: "Week" },
+								{ id: "day", name: "Day", disabled: true },
+							]}
+							defaultValue={view}
+							onSelectionChange={(value) => {
+								setView(value as CalendarView);
+							}}
+						></SelectField>
 					</div>
-					<SelectField
-						optionList={[
-							{ id: "month", name: "Month" },
-							{ id: "week", name: "Week" },
-							{ id: "day", name: "Day" },
-						]}
-						defaultValue={view}
-						onSelectionChange={(value) => {
-							setView(value as CalendarView);
-						}}
-					></SelectField>
 				</CalendarControls>
 			</CalendarHeader>
 

@@ -6,13 +6,14 @@ import { useTheme } from "@mui/material/styles";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { SelectField } from "./MultiPurpose/SelectField";
-import { SearchField } from "./MultiPurpose/SearchFeild";
 import { RosterItem } from "@/redux/roster/types";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { filterProviders } from "@/redux/roster/rosterSlice";
-
-const SidebarContainer = styled.div<{ isMobile: boolean; isOpen: boolean ; isHidden: boolean }>`
+import SearchWithSelected from "./MultiPurpose/SearchFeild";
+import { filterProviderBaseOnName } from "@/redux/roster/rosterSlice";
+import { isFilterApplied } from "@/utils/utils";
+const SidebarContainer = styled.div<{ isMobile: boolean; isOpen: boolean; isHidden: boolean }>`
 	display: ${({ isHidden }) => (isHidden ? "none" : "block")};
 	position: ${({ isMobile }) => (isMobile ? "fixed" : "relative")};
 	top: 0;
@@ -20,7 +21,7 @@ const SidebarContainer = styled.div<{ isMobile: boolean; isOpen: boolean ; isHid
 	bottom: 0;
 	width: ${({ isMobile }) => (isMobile ? "80%" : "20%")};
 	background-color: white;
-	padding: 16px;
+	padding: 0px 16px;
 	border-right: 1px solid #eee;
 	transform: ${({ isMobile, isOpen }) => (isMobile && !isOpen ? "translateX(-100%)" : "translateX(0)")};
 	transition: transform 0.3s ease-in-out;
@@ -55,13 +56,13 @@ const ResetButton = styled.button`
 	cursor: pointer;
 `;
 
-const ApplyButton = styled.button`
+const ApplyButton = styled.button<{ isFilterApplied: boolean }>`
+	${({ isFilterApplied }) => (isFilterApplied ? "background: #e76943;" : "background: #BDBDBD;")}
 	width: 88px;
 	height: 40px;
 	gap: 4px;
 	border-radius: 8px;
 	padding: 8px 24px;
-	background: #e76943;
 	font-family: amahafont;
 	font-weight: 600;
 	font-size: 16px;
@@ -75,7 +76,7 @@ const FlexBox = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
-	width: 100%;
+	margin-top: 16px;
 `;
 
 const Note = styled.p`
@@ -84,6 +85,7 @@ const Note = styled.p`
 	font-family: amahafont;
 	font-weight: 500;
 	letter-spacing: 0%;
+	margin-top: -50px;
 `;
 
 const ButtonsContainer = styled.div`
@@ -103,9 +105,10 @@ const ToggleButton = styled(IconButton)`
 interface SidebarFiltersProps {
 	roster: RosterItem[];
 	isHidden: boolean;
+	view: string;
 }
 
-export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster , isHidden}) => {
+export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster, isHidden, view }) => {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 	const [filter, setFilter] = useState({ provider_usertype: "0", is_inhouse: "0", clinic_details: "0" });
@@ -129,7 +132,7 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster , isHidden}) =>
 			return acc;
 		}, []) || []),
 	];
-
+	// Get unique clinic details
 	const listOfCenters = [
 		{ id: "0", name: "All centers" },
 		...(roster?.reduce((acc: { id: string; name: string }[], therapist: RosterItem) => {
@@ -143,7 +146,20 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster , isHidden}) =>
 			return acc;
 		}, []) || []),
 	];
-
+	// Get unique provider names
+	const listOfProvider = [
+		...(roster?.reduce((acc: { id: string; name: string }[], therapist: RosterItem) => {
+			const alreadyExists = acc.some((item) => Number(item.id) === Number(therapist.id));
+			if (!alreadyExists) {
+				acc.push({
+					id: therapist.id.toString(),
+					name: therapist.name,
+				});
+			}
+			return acc;
+		}, []) || []),
+	];
+	// Get types as of now ignore we can create this dynamically too
 	const listOfTypes = [
 		{ id: "0", name: "All types" },
 		{ id: "1", name: "In House" },
@@ -158,13 +174,15 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster , isHidden}) =>
 	};
 
 	const handleApply = () => {
-		console.log("Filter applied:", filter);
 		dispatch(filterProviders(filter));
 	};
 
 	const handleReset = () => {
 		setFilter({ provider_usertype: "0", is_inhouse: "0", clinic_details: "0" });
 		dispatch(filterProviders({ provider_usertype: "0", is_inhouse: "0", clinic_details: "0" }));
+	};
+	const handleProviderFilterChange = (value: string[]) => {
+		dispatch(filterProviderBaseOnName(value));
 	};
 
 	return (
@@ -175,30 +193,41 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster , isHidden}) =>
 			<Overlay isOpen={isSidebarOpen && isMobile} onClick={toggleSidebar} />
 			<SidebarContainer isMobile={isMobile} isOpen={isSidebarOpen} isHidden={isHidden}>
 				<FlexBox>
-					<SelectField
-						type="provider_usertype"
-						optionList={listOfTherapists}
-						defaultValue={filter.provider_usertype}
-						onSelectionChange={handleSelectionChange}
+					{view === "slot" && (
+						<>
+							<SelectField
+								type="provider_usertype"
+								optionList={listOfTherapists}
+								defaultValue={filter.provider_usertype}
+								onSelectionChange={handleSelectionChange}
+							/>
+							<SelectField
+								type="is_inhouse"
+								optionList={listOfTypes}
+								defaultValue={filter.is_inhouse}
+								onSelectionChange={handleSelectionChange}
+							/>
+							<SelectField
+								type="clinic_details"
+								optionList={listOfCenters}
+								defaultValue={filter.clinic_details}
+								onSelectionChange={handleSelectionChange}
+							/>
+							<ButtonsContainer>
+								{isFilterApplied(filter) && <ResetButton onClick={handleReset}>Reset</ResetButton>}
+								<ApplyButton isFilterApplied={isFilterApplied(filter)} onClick={handleApply}>
+									{" "}
+									Apply
+								</ApplyButton>
+							</ButtonsContainer>
+						</>
+					)}
+
+					<SearchWithSelected
+						listOfProvider={listOfProvider}
+						onSelectionChange={handleProviderFilterChange}
 					/>
-					<SelectField
-						type="is_inhouse"
-						optionList={listOfTypes}
-						defaultValue={filter.is_inhouse}
-						onSelectionChange={handleSelectionChange}
-					/>
-					<SelectField
-						type="clinic_details"
-						optionList={listOfCenters}
-						defaultValue={filter.clinic_details}
-						onSelectionChange={handleSelectionChange}
-					/>
-					<ButtonsContainer>
-						<ResetButton onClick={handleReset}>Reset</ResetButton>
-						<ApplyButton onClick={handleApply}>Apply</ApplyButton>
-					</ButtonsContainer>
-					<SearchField />
-					<Note>You can search up to 5 providers to view their availability.</Note>
+					{view === "slot" && <Note>You can search up to 5 providers to view their availability.</Note>}
 				</FlexBox>
 			</SidebarContainer>
 		</>

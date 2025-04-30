@@ -1,10 +1,12 @@
 /** @jsxImportSource @emotion/react */
+
 import { FC, useEffect, useState } from "react";
 import { css } from "@emotion/react";
 
 interface Option {
 	id: string;
 	name: string;
+	disabled?: boolean;
 }
 
 interface SelectFieldProps {
@@ -31,7 +33,7 @@ export const SelectField: FC<SelectFieldProps> = ({ defaultValue, onSelectionCha
 		<div css={containerStyle}>
 			<select value={value} onChange={handleChange} css={selectStyle} aria-label="Select option">
 				{optionList.map((option) => (
-					<option key={option.id} value={option.id}>
+					<option key={option.id} value={option.id} disabled={option.disabled}>
 						{option.name}
 					</option>
 				))}

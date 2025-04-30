@@ -9,6 +9,9 @@ interface RosterState {
 	status: "idle" | "loading" | "succeeded" | "failed";
 	error: string | null;
 	originalRoster: RosterItem[];
+	view: string;
+	isHidden: boolean;
+	selectedDate: string;
 }
 
 const initialState: RosterState = {
@@ -16,6 +19,9 @@ const initialState: RosterState = {
 	status: "idle",
 	error: null,
 	originalRoster: [],
+	view: "slot",
+	isHidden: false,
+	selectedDate: "",
 };
 
 const userTypes = {
@@ -63,6 +69,22 @@ const rosterSlice = createSlice({
 			});
 			return state;
 		},
+		filterProviderBaseOnName(state, action: PayloadAction<string[]>) {
+			const nameList = action.payload;
+			const filteredRoster = state.roster.filter((provider) =>
+				nameList.every((name) => provider.name.toLowerCase().includes(name.toLowerCase())),
+			);
+			state.roster = nameList.length === 0 ? state.originalRoster : filteredRoster;
+		},
+		setView(state, action: PayloadAction<string>) {
+			state.view = action.payload;
+		},
+		setIsHidden(state, action: PayloadAction<boolean>) {
+			state.isHidden = action.payload;
+		},
+		setSelectedDate(state, action: PayloadAction<string>) {
+			state.selectedDate = action.payload;
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -81,6 +103,6 @@ const rosterSlice = createSlice({
 	},
 });
 
-export const { filterProviders } = rosterSlice.actions;
+export const { filterProviders, filterProviderBaseOnName, setView, setIsHidden, setSelectedDate } = rosterSlice.actions;
 
 export default rosterSlice.reducer;

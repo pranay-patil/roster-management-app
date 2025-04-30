@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { theme } from "../styles/theme"; // assuming you have colors there
+import { theme } from "../../styles/theme"; // assuming you have colors there
 
 const LegendContainer = styled.div`
 	display: grid;

@@ -1,18 +1,18 @@
 import styled from "@emotion/styled";
 import { SidebarFilters } from "./SidebarFilters";
 import { CalendarHeader } from "./CalendarHeader";
-import { ProviderCard } from "./ProviderCard";
+import { ProviderCard } from "./TimeSlots/ProviderCard";
 import Header from "./Header/Header";
-import { SlotLegend } from "./SlotLegend";
+import { SlotLegend } from "./TimeSlots/SlotLegend";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { fetchRoster } from "@/redux/roster/rosterSlice";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import dayjs from "dayjs";
 import CalendarPage from "./Calendar/Calendar";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-
+import { setView, setIsHidden, setSelectedDate } from "@/redux/roster/rosterSlice";
 const Container = styled.div`
 	display: flex;
 	width: 100%;
@@ -20,8 +20,7 @@ const Container = styled.div`
 
 const CalendarSection = styled.div`
 	flex: 1;
-	padding: 16px;
-	width: 20%;
+	padding: 0px 16px;
 `;
 
 const CalendarHeaderContainer = styled.div`
@@ -62,30 +61,31 @@ export const ProviderCalendar = () => {
 	const roster = useSelector((state: RootState) => state.roster.roster);
 	const originalRoster = useSelector((state: RootState) => state.roster.originalRoster);
 	const status = useSelector((state: RootState) => state.roster.status);
-	const [view, setView] = useState<string>("slot");
-	const [isHidden, setHidden] = useState<boolean>(false);
-	const [selectedDate, setSelectedDate] = useState("");
 
-	const handleDateChange = (date: string) => {
-		setSelectedDate(date);
-	};
+	const view = useSelector((state: RootState) => state.roster.view);
+	const isHidden = useSelector((state: RootState) => state.roster.isHidden);
+	const selectedDate = useSelector((state: RootState) => state.roster.selectedDate);
 	useEffect(() => {
 		dispatch(fetchRoster());
 	}, [dispatch]);
 
 	const toggleView = (value: string) => {
-		setView(value);
+		dispatch(setView(value));
 	};
 
 	const handleSideBarToggle = () => {
-		setHidden(!isHidden);
+		dispatch(setIsHidden(!isHidden));
+	};
+
+	const handleDateChange = (date: string) => {
+		dispatch(setSelectedDate(date));
 	};
 
 	return (
 		<>
 			<Header view={view} isHidden={isHidden} toggleView={toggleView} handleSideBarToggle={handleSideBarToggle} />
 			<Container>
-				<SidebarFilters roster={originalRoster} isHidden={isHidden} />
+				<SidebarFilters roster={originalRoster} isHidden={isHidden} view={view} />
 				{view === "slot" && (
 					<CalendarSection>
 						<CalendarHeader onDayChange={handleDateChange} />
