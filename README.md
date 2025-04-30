@@ -14,27 +14,59 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Features Implemented
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### ✅ Top Feature: Filter Functionality with Dynamic UI Update
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+-   Filters available: **All Services**, **All Types**, and **All Centers**
+-   UI dynamically updates based on selected filters (e.g., selecting _Therapace_)
+-   **Apply Filter**: Displays filtered results correctly
+-   **Reset Button**: Resets all applied filters
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 📋 Full Feature List
 
-## Learn More
+1. **Filter Functionality**
 
-To learn more about Next.js, take a look at the following resources:
+    - Multiple dropdowns for filtering
+    - Live UI update on selection
+    - Reset functionality
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+2. **Scrollable Date Window**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    - Vertical scroll for navigating through dates
 
-## Deploy on Vercel
+3. **Calendar View Toggle**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    - Toggle between default and calendar view
+    - Simple click-based toggle
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+4. **Provider Selection**
+
+    - Multi-select providers (doctors)
+    - Deselect providers as needed
+
+5. **View Calendar with Bookings**
+
+    - Calendar displays provider availability
+    - Click any event slot to trigger a booking modal
+
+6. **Add Event (Booking) Modal**
+
+    - Modal for creating new bookings
+    - Ability to assign colors to bookings
+    - Slot visually added to calendar on submission
+
+7. **Calendar View Implementation**
+
+    - **Week view** fully implemented
+    - **Month view** partially implemented (code present but incomplete)
+
+8. **State Handling (Partial)**
+    - Basic provider state management
+    - Advanced state features not completed due to time constraints
+
+---
+
+🕒 **Note**: Due to a busy schedule, some parts like month view and full provider state handling were left partially implemented.

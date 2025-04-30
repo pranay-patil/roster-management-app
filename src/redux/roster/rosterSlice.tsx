@@ -71,7 +71,7 @@ const rosterSlice = createSlice({
 		},
 		filterProviderBaseOnName(state, action: PayloadAction<string[]>) {
 			const nameList = action.payload;
-			const filteredRoster = state.roster.filter((provider) =>
+			const filteredRoster = state.originalRoster.filter((provider) =>
 				nameList.every((name) => provider.name.toLowerCase().includes(name.toLowerCase())),
 			);
 			state.roster = nameList.length === 0 ? state.originalRoster : filteredRoster;
