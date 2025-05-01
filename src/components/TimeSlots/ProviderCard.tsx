@@ -6,8 +6,9 @@ import { VideoIcon } from "@/icons/VideoIcon";
 import { RightArrow, RightArrowFilled } from "@/icons/RightArrow";
 import { LeftArrow } from "@/icons/LeftArrow";
 import { Availability } from "@/redux/roster/types";
-import { filterProviderBaseOnName } from "@/redux/roster/rosterSlice";
-import { useDispatch } from "react-redux";
+import { filterProviderBasedOnIds, setSelectedItems } from "@/redux/roster/rosterSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 const Card = styled.div`
 	margin-bottom: 32px;
 	display: flex;
@@ -151,12 +152,15 @@ interface ProviderCardProps {
 	availabilities: Availability[];
 	toggleView?: (view: string) => void;
 }
-export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilities, toggleView = () => {} }) => {
+export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilities, toggleView = () => {}, id }) => {
 	const scrollRef = useRef<HTMLDivElement>(null);
 
+	const selectedItems = useSelector((state: RootState) => state.roster.selectedItems);
 	const dispatch = useDispatch();
-	const handleProviderFilterChange = (value: string[]) => {
-		dispatch(filterProviderBaseOnName(value));
+	const handleProviderFilterChange = (value: number[]) => {
+		dispatch(filterProviderBasedOnIds(value));
+		const newSelectedItems = [...selectedItems, { id: id.toString(), name: name }];
+		dispatch(setSelectedItems(newSelectedItems));
 	};
 	const generateTimeSlots = () => {
 		const slots = [];
@@ -211,7 +215,7 @@ export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilitie
 					<CalendarViewText
 						onClick={() => {
 							toggleView("calendar");
-							handleProviderFilterChange([name]);
+							handleProviderFilterChange([id]);
 						}}
 					>
 						View Calendar
@@ -228,7 +232,7 @@ export const ProviderCard: FC<ProviderCardProps> = ({ name, image, availabilitie
 				<ArrowButton direction="right" onClick={() => scroll("right")}>
 					<RightArrowFilled />
 				</ArrowButton>
-
+						
 				<ScrollableContainer ref={scrollRef}>
 					<TimeSlotsGrid>
 						{timeSlots.map((slot, index) => (

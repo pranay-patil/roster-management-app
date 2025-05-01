@@ -4,6 +4,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { fetchRosterData } from "./rosterAPI";
 import { RosterItem } from "./types";
 
+// Add to the RosterState interface
 interface RosterState {
 	roster: RosterItem[];
 	status: "idle" | "loading" | "succeeded" | "failed";
@@ -12,6 +13,8 @@ interface RosterState {
 	view: string;
 	isHidden: boolean;
 	selectedDate: string;
+	selectedItems: { id: string; name: string }[];
+	filteredOptions: RosterItem[];
 }
 
 const initialState: RosterState = {
@@ -22,6 +25,8 @@ const initialState: RosterState = {
 	view: "slot",
 	isHidden: false,
 	selectedDate: "",
+	selectedItems: [],
+	filteredOptions: [],
 };
 
 const userTypes = {
@@ -69,12 +74,10 @@ const rosterSlice = createSlice({
 			});
 			return state;
 		},
-		filterProviderBaseOnName(state, action: PayloadAction<string[]>) {
-			const nameList = action.payload;
-			const filteredRoster = state.originalRoster.filter((provider) =>
-				nameList.every((name) => provider.name.toLowerCase().includes(name.toLowerCase())),
-			);
-			state.roster = nameList.length === 0 ? state.originalRoster : filteredRoster;
+		filterProviderBasedOnIds(state, action: PayloadAction<number[]>) {
+			const idList = action.payload;
+			const filteredRoster = state.originalRoster.filter((provider) => idList.includes(provider.id));
+			state.roster = idList.length === 0 ? state.originalRoster : filteredRoster;
 		},
 		setView(state, action: PayloadAction<string>) {
 			state.view = action.payload;
@@ -84,6 +87,13 @@ const rosterSlice = createSlice({
 		},
 		setSelectedDate(state, action: PayloadAction<string>) {
 			state.selectedDate = action.payload;
+		},
+		setSelectedItems(state, action: PayloadAction<{ id: string; name: string }[]>) {
+			state.selectedItems = action.payload;
+		},
+
+		setFilteredOptions(state, action: PayloadAction<RosterItem[]>) {
+			state.filteredOptions = action.payload;
 		},
 	},
 	extraReducers: (builder) => {
@@ -103,6 +113,14 @@ const rosterSlice = createSlice({
 	},
 });
 
-export const { filterProviders, filterProviderBaseOnName, setView, setIsHidden, setSelectedDate } = rosterSlice.actions;
+export const {
+	filterProviders,
+	filterProviderBasedOnIds,
+	setView,
+	setIsHidden,
+	setSelectedDate,
+	setSelectedItems,
+	setFilteredOptions,
+} = rosterSlice.actions;
 
 export default rosterSlice.reducer;

@@ -11,7 +11,6 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { filterProviders } from "@/redux/roster/rosterSlice";
 import SearchWithSelected from "./MultiPurpose/SearchFeild";
-import { filterProviderBaseOnName } from "@/redux/roster/rosterSlice";
 import { isFilterApplied } from "@/utils/utils";
 const SidebarContainer = styled.div<{ isMobile: boolean; isOpen: boolean; isHidden: boolean }>`
 	display: ${({ isHidden }) => (isHidden ? "none" : "block")};
@@ -19,7 +18,7 @@ const SidebarContainer = styled.div<{ isMobile: boolean; isOpen: boolean; isHidd
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: ${({ isMobile }) => (isMobile ? "80%" : "20%")};
+	width: ${({ isMobile }) => (isMobile ? "" : "20%")};
 	background-color: white;
 	padding: 0px 16px;
 	border-right: 1px solid #eee;
@@ -146,19 +145,6 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster, isHidden, view
 			return acc;
 		}, []) || []),
 	];
-	// Get unique provider names
-	const listOfProvider = [
-		...(roster?.reduce((acc: { id: string; name: string }[], therapist: RosterItem) => {
-			const alreadyExists = acc.some((item) => Number(item.id) === Number(therapist.id));
-			if (!alreadyExists) {
-				acc.push({
-					id: therapist.id.toString(),
-					name: therapist.name,
-				});
-			}
-			return acc;
-		}, []) || []),
-	];
 	// Get types as of now ignore we can create this dynamically too
 	const listOfTypes = [
 		{ id: "0", name: "All types" },
@@ -180,9 +166,6 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster, isHidden, view
 	const handleReset = () => {
 		setFilter({ provider_usertype: "0", is_inhouse: "0", clinic_details: "0" });
 		dispatch(filterProviders({ provider_usertype: "0", is_inhouse: "0", clinic_details: "0" }));
-	};
-	const handleProviderFilterChange = (value: string[]) => {
-		dispatch(filterProviderBaseOnName(value));
 	};
 
 	return (
@@ -223,10 +206,7 @@ export const SidebarFilters: FC<SidebarFiltersProps> = ({ roster, isHidden, view
 						</>
 					)}
 
-					<SearchWithSelected
-						listOfProvider={listOfProvider}
-						onSelectionChange={handleProviderFilterChange}
-					/>
+					<SearchWithSelected />
 					{view === "slot" && <Note>You can search up to 5 providers to view their availability.</Note>}
 				</FlexBox>
 			</SidebarContainer>

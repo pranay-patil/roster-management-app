@@ -1,45 +1,46 @@
-/* eslint-disable */
 import styled from "@emotion/styled";
 import { Event } from "@/types/calendar";
 import { isSameDay } from "./utils";
 import React, { useState, useEffect } from "react";
 import { Video } from "lucide-react";
-const getResponsiveColumnWidth = () => {
-	const width = window.innerWidth;
-	if (width < 480) return 80;
-	if (width < 768) return 100;
-	return 120;
-};
+
+// Constants
 const TIME_SLOT_HEIGHT = 60;
 const START_HOUR = 8;
 const END_HOUR = 20;
 const DAY_COUNT = 7;
 const TIME_LABEL_WIDTH = 60;
-const COLUMN_WIDTH = 200;
 
-const WeekViewContainer = styled.div`
+const getResponsiveColumnWidth = () => {
+	const width = window.innerWidth;
+	if (width < 480) return 80;
+	if (width < 768) return 100;
+	return 200;
+};
+
+// Styled Components
+const WeekViewContainer = styled.div<{ columnWidth: number }>`
 	display: grid;
-	grid-template-columns: ${TIME_LABEL_WIDTH}px repeat(${DAY_COUNT}, ${COLUMN_WIDTH}px);
+	grid-template-columns: ${TIME_LABEL_WIDTH}px repeat(${DAY_COUNT}, ${(props) => props.columnWidth}px);
 	grid-auto-rows: ${TIME_SLOT_HEIGHT}px;
 	position: relative;
 	height: calc(${TIME_SLOT_HEIGHT}px * ${END_HOUR - START_HOUR + 1} + 50px);
 	background: white;
-	overflow-y: auto;
-	overflow-x: auto;
-
-	@media (max-width: 768px) {
-		grid-template-columns: ${TIME_LABEL_WIDTH}px repeat(${DAY_COUNT}, 100px);
-	}
-
-	@media (max-width: 480px) {
-		grid-template-columns: ${TIME_LABEL_WIDTH}px repeat(${DAY_COUNT}, 80px);
-	}
+	overflow: auto;
+	min-width: ${TIME_LABEL_WIDTH + DAY_COUNT * 80}px;
 `;
 
 const WeekDayWrapper = styled.div`
 	font-weight: 500;
-	font-size: 12px;
+	font-size: 14px;
 	color: #9e9e9e;
+
+	@media (max-width: 768px) {
+		font-size: 12px;
+	}
+	@media (max-width: 480px) {
+		font-size: 10px;
+	}
 `;
 
 const TimeSlot = styled.div`
@@ -59,6 +60,10 @@ const TimeLabel = styled.div`
 	border-bottom: 1px solid #ccc;
 	border-right: 1px solid #ccc;
 	width: ${TIME_LABEL_WIDTH}px;
+
+	@media (max-width: 480px) {
+		font-size: 10px;
+	}
 `;
 
 const EventItem = styled.div<{ color: string }>`
@@ -74,6 +79,10 @@ const EventItem = styled.div<{ color: string }>`
 	text-overflow: ellipsis;
 	display: flex;
 	align-items: center;
+
+	@media (max-width: 480px) {
+		font-size: 10px;
+	}
 `;
 
 const DayHeaderDate = styled.div<{ isToday: boolean }>`
@@ -97,6 +106,7 @@ const DayHeader = styled.div`
 	border-right: 1px solid #e0e0e0;
 `;
 
+// Component Props
 interface WeekViewProps {
 	currentDate: Date;
 	events: Event[];
@@ -105,6 +115,7 @@ interface WeekViewProps {
 	onSlotClick: (date: Date) => void;
 }
 
+// Main Component
 export const WeekView: React.FC<WeekViewProps> = ({
 	currentDate,
 	events,
@@ -115,6 +126,7 @@ export const WeekView: React.FC<WeekViewProps> = ({
 	const today = new Date();
 	const startOfWeek = new Date(currentDate);
 	startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
 	const [columnWidth, setColumnWidth] = useState(getResponsiveColumnWidth());
 
 	useEffect(() => {
@@ -122,12 +134,12 @@ export const WeekView: React.FC<WeekViewProps> = ({
 		window.addEventListener("resize", handleResize);
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
+
 	const days = [];
 	const timeSlots = [];
 
 	for (let hour = START_HOUR; hour <= END_HOUR; hour++) {
 		const hourLabel = `${hour % 12 === 0 ? 12 : hour % 12}:00 ${hour >= 12 ? "PM" : "AM"}`;
-
 		timeSlots.push(<TimeLabel key={`time-${hour}`}>{hourLabel}</TimeLabel>);
 
 		for (let day = 0; day < DAY_COUNT; day++) {
@@ -166,13 +178,19 @@ export const WeekView: React.FC<WeekViewProps> = ({
 
 		const top = (startHour - START_HOUR) * TIME_SLOT_HEIGHT;
 		const height = (endHour - startHour) * TIME_SLOT_HEIGHT;
-		const left = TIME_LABEL_WIDTH + dayOffset * COLUMN_WIDTH;
+		const left = TIME_LABEL_WIDTH + dayOffset * columnWidth;
 
 		return (
 			<EventItem
 				key={event.id}
 				color={event.color}
-				style={{ top, left, height, width: COLUMN_WIDTH - 4, zIndex: 10 }}
+				style={{
+					top,
+					left,
+					height,
+					width: columnWidth - 4,
+					zIndex: 10,
+				}}
 				onClick={(e) => {
 					e.stopPropagation();
 					onEventClick(event);
@@ -182,14 +200,14 @@ export const WeekView: React.FC<WeekViewProps> = ({
 			>
 				<div style={{ display: "flex", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
 					<div>{event.title}</div>
-					<Video />
+					<Video size={16} />
 				</div>
 			</EventItem>
 		);
 	});
 
 	return (
-		<WeekViewContainer>
+		<WeekViewContainer columnWidth={columnWidth}>
 			<div></div>
 			{days}
 			{timeSlots}
